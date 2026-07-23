@@ -1,10 +1,10 @@
 # MediaInfo Metadata Harvest Tool
 
-A small zsh utility that recursively scans a directory of media files and writes a
+A zsh utility that recursively scans a directory for audiovisual files and writes a
 CSV of selected technical metadata, read via the [MediaInfo](https://mediaarea.net/en/MediaInfo)
-CLI. It is built to help prepare audio/video assets for digital collections
-processing by producing a single, spreadsheet-friendly inventory of format,
-duration, resolution, bit rate, and related characteristics.
+CLI. It is built to help prepare audio and video assets for digital collections
+processing by producing a single inventory file with format, duration, 
+resolution, bit rate, and related characteristics. This was built on and for macOS.
 
 The tool ships in two parts:
 
@@ -49,7 +49,7 @@ For every time-based file found, one CSV row is written with these columns:
 
 ## Requirements
 
-- **zsh** — the scripts use zsh-specific syntax (`read -r "?prompt"`, the `:h`
+- **zsh** — the core script uses zsh specific syntax (`read -r "?prompt"`, the `:h`
   modifier). zsh is the default shell on modern macOS.
 - **MediaInfo CLI** — install with Homebrew: `brew install mediainfo`.
 - **macOS** is assumed (the `.command` launcher is a macOS convenience). The core
@@ -80,9 +80,6 @@ prompts for:
 1. the input directory (full path), and
 2. the output CSV file (full path, including `.csv`).
 
-Tip: dragging a folder or file from Finder into the Terminal prompt pastes its
-exact path. The window stays open at the end so you can read the result.
-
 ### Command line
 
 ```sh
@@ -100,8 +97,7 @@ exact path. The window stays open at the end so you can read the result.
 ## Output
 
 A CSV at the path you specify, with the header row and columns listed above. Each
-value is wrapped in double quotes. Open it directly in Excel, Numbers, or any
-spreadsheet or data tool.
+value is wrapped in double quotes. 
 
 ---
 
@@ -110,7 +106,7 @@ spreadsheet or data tool.
 The script walks the input directory recursively (`find … -type f`) and, for each
 file, reads the General duration. Files with an empty or zero duration are skipped.
 This filters out still images, text sidecars, and other non-time-based files
-automatically, so only audio/video assets end up in the CSV.
+automatically, so only audio and video assets end up in the CSV.
 
 ---
 
@@ -122,7 +118,7 @@ mediainfo-metadata-harvest/
 ├── HarvestLauncher.command   # Interactive double-click launcher
 ├── README.md                 # This file
 ├── CHANGELOG.md              # Version history
-├── LICENSE                   # License (confirm before publishing)
+├── LICENSE                   # License
 └── .gitignore                # Ignores macOS cruft, editor files, generated CSVs
 ```
 
@@ -131,29 +127,17 @@ mediainfo-metadata-harvest/
 ## Notes and limitations
 
 - **One `mediainfo` call per field.** Each file is probed roughly two dozen times,
-  once per column. This is simple and reliable but slow on large batches — see
-  "Possible improvements."
+  once per column. This is simple and reliable but slow on large batches.
 - **Strict error handling.** The core script runs with `set -o errexit`, so a file
   that causes `mediainfo` to exit non-zero (e.g. a corrupt or unreadable file) can
   abort the whole run mid-batch rather than skipping that file.
 - **CSV quoting is basic.** Fields are wrapped in quotes but embedded double quotes
   in a filename are not escaped, which could misalign a row. Most preservation
-  filenames avoid this, but it is worth knowing.
+  filenames avoid this, but it is worth noting.
 - **Full paths in `filename`.** The column stores the complete path, not just the
-  base name.
+  base filename.
 
-## Possible improvements
-
-- Read all fields in a single `mediainfo --Inform` call per file to cut runtime
-  dramatically on large sets.
-- Continue past individual file errors so one bad file doesn't stop the batch, with
-  a summary of skipped files at the end.
-- RFC-4180-compliant quote escaping for the CSV.
-- Optional progress counter (e.g. "processed 128 files").
-
----
 
 ## License
 
-See [LICENSE](LICENSE). Confirm the license and copyright holder with your
-organization before making the repository public.
+See [LICENSE](LICENSE).
